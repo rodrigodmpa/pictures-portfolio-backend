@@ -1,4 +1,5 @@
 import File from '../models/File';
+import { success, error, pagination } from '../services/responsePattern';
 
 class FileController {
   async store(req, res) {
@@ -8,7 +9,7 @@ class FileController {
       name,
       path,
     });
-    return res.json(file);
+    return res.json({ ...success(), file });
   }
 }
 

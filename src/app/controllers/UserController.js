@@ -1,12 +1,17 @@
 import * as Yup from 'yup';
 import User from '../models/User';
 import File from '../models/File';
+import { success, error, pagination } from '../services/responsePattern';
 
 class UserController {
   async index(req, res) {
-    const { count, rows: users } = await User.findAndCountAll();
+    const { page = 1, limit = 10 } = req.query;
+    const { count, rows: users } = await User.findAndCountAll({
+      limit,
+      offset: (page - 1) * limit,
+    });
 
-    return res.json({ users, count });
+    return res.json({ ...success(), users, ...pagination(page, limit, count) });
   }
 
   async store(req, res) {
@@ -17,17 +22,17 @@ class UserController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ ...error('Validation fails') });
     }
 
     const userExists = await User.findOne({ where: { email: req.body.email } });
 
     if (userExists) {
-      return res.status(400).json({ error: 'User already exists' });
+      return res.status(400).json({ ...error('User already exists') });
     }
     const { id, name, email, admin } = await User.create(req.body);
 
-    return res.json({ id, name, email, admin });
+    return res.json({ ...success(), id, name, email, admin });
   }
 
   async update(req, res) {
@@ -46,7 +51,7 @@ class UserController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ ...error('Validation fails') });
     }
     const { email, oldPassword } = req.body;
 
@@ -55,12 +60,12 @@ class UserController {
     if (email && email !== user.email) {
       const emailExists = await User.findOne({ where: { email } });
       if (emailExists) {
-        return res.status(400).json({ error: 'Email already exists' });
+        return res.status(400).json({ ...error('Email already exists') });
       }
     }
 
     if (oldPassword && !(await user.checkPassword(oldPassword))) {
-      return res.status(401).json({ error: 'Password does not match' });
+      return res.status(401).json({ ...error('Password does not match') });
     }
 
     await user.update(req.body);
@@ -75,7 +80,7 @@ class UserController {
       ],
     });
 
-    return res.json({ id, name, email, admin, avatar });
+    return res.json({ ...success(), id, name, email, admin, avatar });
   }
 }
 

@@ -38,5 +38,5 @@ const storage = multer.diskStorage({
   },
 });
 
-const uploadDocument = multer({ storage, fileFilter: imageFilter, limits });
-export default uploadDocument;
+const uploadAvatar = multer({ storage, fileFilter: imageFilter, limits });
+export default uploadAvatar;
