@@ -1,3 +1,4 @@
+import Sequelize from 'sequelize';
 import Post from '../models/Post';
 import User from '../models/User';
 import File from '../models/File';
@@ -9,7 +10,7 @@ class PostController {
     const { count, rows: posts } = await Post.findAndCountAll({
       limit,
       offset: (page - 1) * limit,
-      order: [['created_at', 'DESC']],
+      order: [['real_date', 'DESC']],
       include: [
         {
           model: User,
@@ -29,6 +30,15 @@ class PostController {
     return res.json({ ...success(), posts, ...pagination(page, limit, count) });
   }
 
+  async showRandom(req, res) {
+    const image = await Post.findOne({
+      attributes: ['id', 'name', 'url', 'path'],
+      order: [Sequelize.literal('random()')],
+    });
+
+    return res.json({ ...success(), image });
+  }
+
   async store(req, res) {
     // console.log(req);
     const { originalname: name, filename: path } = req.file;
@@ -45,7 +55,25 @@ class PostController {
         real_date,
         user_id,
       });
-      return res.json({ ...success(), post });
+
+      const postWithUser = await Post.findByPk(post.id, {
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'name'],
+            include: [
+              {
+                model: File,
+                as: 'avatar',
+                attributes: ['name', 'path', 'url'],
+              },
+            ],
+          },
+        ],
+      });
+
+      return res.json({ ...success(), post: postWithUser });
     } catch (err) {
       return res.status(500).json({ ...error() });
     }

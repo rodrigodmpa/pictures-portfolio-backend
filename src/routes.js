@@ -33,6 +33,8 @@ routes.post(
 
 routes.get('/posts', authMiddleware, PostController.index);
 
+routes.get('/random-post', PostController.showRandom);
+
 routes.get('/', async (req, res) => {
   return res.json({ status: 'ok' });
 });
