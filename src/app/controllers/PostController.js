@@ -40,11 +40,15 @@ class PostController {
   }
 
   async store(req, res) {
-    // console.log(req);
     const { originalname: name, filename: path } = req.file;
 
     const { title, subtitle, real_date } = req.body;
     const user_id = req.userId;
+    if (!req.userIsAdmin) {
+      return res.status(403).json({
+        ...error('User does not have provileges to post.'),
+      });
+    }
 
     try {
       const post = await Post.create({
