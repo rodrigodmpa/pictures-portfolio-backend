@@ -4,10 +4,8 @@ import { extname, resolve } from 'path';
 
 const imageFilter = (req, file, cb) => {
   if (
-    file.mimetype.includes('image/gif') ||
     file.mimetype.includes('image/jpeg') ||
-    file.mimetype.includes('image/png') ||
-    file.mimetype.includes('image/svg+xml')
+    file.mimetype.includes('image/png')
   ) {
     cb(null, true);
   } else {

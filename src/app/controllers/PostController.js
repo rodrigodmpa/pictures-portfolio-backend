@@ -3,6 +3,7 @@ import Post from '../models/Post';
 import User from '../models/User';
 import File from '../models/File';
 import { success, error, pagination } from '../services/responsePattern';
+import { reduceQualityFile } from '../services/resizeFile';
 
 class PostController {
   async index(req, res) {
@@ -42,13 +43,15 @@ class PostController {
   async store(req, res) {
     const { originalname: name, filename: path } = req.file;
 
-    const { title, subtitle, real_date } = req.body;
+    const { title, subtitle, real_date = new Date() } = req.body;
     const user_id = req.userId;
     if (!req.userIsAdmin) {
       return res.status(403).json({
         ...error('User does not have provileges to post.'),
       });
     }
+
+    await reduceQualityFile(req.file.path, 50);
 
     try {
       const post = await Post.create({
