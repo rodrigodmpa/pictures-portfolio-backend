@@ -122,6 +122,10 @@ class PostController {
         .json({ ...error('User does not have permission to delete posts.') });
     try {
       const post = await Post.findByPk(post_id);
+      if (post.user_id !== req.userId)
+        return res.status(403).json({
+          ...error('You can not delete posts from another user.'),
+        });
       await Post.destroy({ where: { id: post_id } });
       deleteFile({
         pathStartingWithTmp: ['tmp', 'uploads', 'posts', post.path],
