@@ -85,6 +85,67 @@ class PostController {
       return res.status(500).json({ ...error() });
     }
   }
+
+  async update(req, res) {
+    const { post_id } = req.params;
+    const { title, subtitle, real_date } = req.body;
+
+    if (!req.userIsAdmin)
+      return res
+        .status(403)
+        .json({ ...error('User does not have permission to edit posts.') });
+    try {
+      const [numberOfPostsUpdated, post] = await Post.update(
+        { title, subtitle, real_date },
+        {
+          where: { id: post_id },
+          returning: true,
+        }
+      );
+      return res.json({ ...success(), numberOfPostsUpdated, post });
+    } catch (err) {
+      return res.status(500).json({ ...error() });
+    }
+  }
+
+  async delete(req, res) {
+    const { post_id } = req.params;
+    if (!req.userIsAdmin)
+      return res
+        .status(403)
+        .json({ ...error('User does not have permission to delete posts.') });
+    try {
+      await Post.destroy({ where: { id: post_id } });
+      return res.json({ ...success() });
+    } catch (err) {
+      return res.status(500).json({ ...error() });
+    }
+  }
+
+  async show(req, res) {
+    const { post_id } = req.params;
+    try {
+      const post = await Post.findByPk(post_id, {
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'name'],
+            include: [
+              {
+                model: File,
+                as: 'avatar',
+                attributes: ['name', 'path', 'url'],
+              },
+            ],
+          },
+        ],
+      });
+      return res.json({ ...success(), post });
+    } catch (err) {
+      return res.status(500).json({ ...error() });
+    }
+  }
 }
 
 export default new PostController();

@@ -32,6 +32,9 @@ routes.post(
 );
 
 routes.get('/posts', authMiddleware, PostController.index);
+routes.get('/posts/:post_id', authMiddleware, PostController.show);
+routes.put('/posts/:post_id', authMiddleware, PostController.update);
+routes.delete('/posts/:post_id', authMiddleware, PostController.delete);
 
 routes.get('/random-post', PostController.showRandom);
 
