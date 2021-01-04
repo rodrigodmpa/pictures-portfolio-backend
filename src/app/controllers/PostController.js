@@ -4,6 +4,7 @@ import User from '../models/User';
 import File from '../models/File';
 import { success, error, pagination } from '../services/responsePattern';
 import { reduceQualityFile } from '../services/resizeFile';
+import deleteFile from '../services/deleteFile';
 
 class PostController {
   async index(req, res) {
@@ -95,6 +96,11 @@ class PostController {
         .status(403)
         .json({ ...error('User does not have permission to edit posts.') });
     try {
+      const postExists = await Post.findByPk(post_id);
+      if (postExists.user_id !== req.userId)
+        return res.status(403).json({
+          ...error('You can not edit posts from another user.'),
+        });
       const [numberOfPostsUpdated, post] = await Post.update(
         { title, subtitle, real_date },
         {
@@ -115,7 +121,11 @@ class PostController {
         .status(403)
         .json({ ...error('User does not have permission to delete posts.') });
     try {
+      const post = await Post.findByPk(post_id);
       await Post.destroy({ where: { id: post_id } });
+      deleteFile({
+        pathStartingWithTmp: ['tmp', 'uploads', 'posts', post.path],
+      });
       return res.json({ ...success() });
     } catch (err) {
       return res.status(500).json({ ...error() });
