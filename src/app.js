@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import 'express-async-errors';
-import * as Youch from 'youch';
+import Youch from 'youch';
 import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
