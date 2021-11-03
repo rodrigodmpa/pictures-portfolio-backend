@@ -62,6 +62,38 @@ class LikeController {
       return res.status(500).json({ ...error() });
     }
   }
+
+  async toggle(req, res) {
+    const schema = Yup.object().shape({
+      post_id: Yup.string().required(),
+    });
+    if (!(await schema.isValid(req.query))) {
+      return res.status(400).json({ ...error('Validation fails') });
+    }
+
+    const { post_id } = req.query;
+    const user_id = req.userId;
+    let isLike;
+    try {
+      const post = await Like.findOne({
+        where: { post_id, user_id },
+      });
+
+      if (!post) {
+        await Like.create({
+          post_id,
+          user_id,
+        });
+        isLike = true;
+      } else {
+        await Like.destroy({ where: { post_id, user_id } });
+        isLike = false;
+      }
+      return res.json({ ...success(), isLike });
+    } catch (err) {
+      return res.status(500).json({ ...error() });
+    }
+  }
 }
 
 export default new LikeController();

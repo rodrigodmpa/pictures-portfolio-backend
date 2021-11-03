@@ -35,6 +35,7 @@ routes.post(
 routes.get('/likes', authMiddleware, LikeController.index);
 routes.post('/likes', authMiddleware, LikeController.store);
 routes.delete('/likes', authMiddleware, LikeController.delete);
+routes.post('/likes/toggle', authMiddleware, LikeController.toggle);
 
 routes.get('/posts', authMiddleware, PostController.index);
 routes.get('/posts/:post_id', authMiddleware, PostController.show);

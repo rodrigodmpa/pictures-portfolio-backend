@@ -43,11 +43,6 @@ class PostController {
       ],
     });
 
-    // const postsWithLiked = posts.map((post) => ({
-    //   ...post,
-    //   isLiked: !!post?.likes?.filter((like) => like.user_id === user_id),
-    // }));
-    // console.log(postsWithLiked);
     return res.json({ ...success(), posts, ...pagination(page, limit, count) });
   }
 
