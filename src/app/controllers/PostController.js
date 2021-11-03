@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import Post from '../models/Post';
 import User from '../models/User';
 import File from '../models/File';
+import Like from '../models/Like';
 import { success, error, pagination } from '../services/responsePattern';
 import { reduceQualityFile } from '../services/resizeFile';
 import deleteFile from '../services/deleteFile';
@@ -9,6 +10,7 @@ import deleteFile from '../services/deleteFile';
 class PostController {
   async index(req, res) {
     const { page = 1, limit = 10 } = req.query;
+    // const user_id = req.userId;
     const { count, rows: posts } = await Post.findAndCountAll({
       limit,
       offset: (page - 1) * limit,
@@ -23,6 +25,18 @@ class PostController {
               model: File,
               as: 'avatar',
               attributes: ['name', 'path', 'url'],
+            },
+          ],
+        },
+        {
+          model: Like,
+          as: 'likes',
+          attributes: ['id', 'user_id', 'post_id'],
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['name'],
             },
           ],
         },

@@ -9,6 +9,7 @@ import UserController from './app/controllers/UserController';
 import SessionController from './app/controllers/SessionController';
 import FileController from './app/controllers/FileController';
 import PostController from './app/controllers/PostController';
+import LikeController from './app/controllers/LikeController';
 
 const routes = new Router();
 
@@ -30,6 +31,11 @@ routes.post(
   uploadPostMiddleware.single('file'),
   PostController.store
 );
+
+routes.get('/likes', authMiddleware, LikeController.index);
+routes.post('/likes', authMiddleware, LikeController.store);
+routes.delete('/likes', authMiddleware, LikeController.delete);
+routes.post('/likes/toggle', authMiddleware, LikeController.toggle);
 
 routes.get('/posts', authMiddleware, PostController.index);
 routes.get('/posts/:post_id', authMiddleware, PostController.show);
