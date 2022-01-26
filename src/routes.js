@@ -44,8 +44,6 @@ routes.delete('/posts/:post_id', authMiddleware, PostController.delete);
 
 routes.get('/random-post', PostController.showRandom);
 
-routes.get('/', async (req, res) => {
-  return res.json({ status: 'ok' });
-});
+routes.get('/', async (req, res) => res.json({ status: 'ok' }));
 
 export default routes;
